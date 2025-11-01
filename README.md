@@ -1,10 +1,7 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Next.js Gemini Chatbot</h1>
-</a>
+<h1 align="center">AI Market Analyst</h1>
 
 <p align="center">
-  An Open-Source AI Chatbot Template Built With Next.js and the AI SDK by Vercel.
+  Get instant AI-powered market insights from your research documents.
 </p>
 
 <p align="center">
@@ -17,21 +14,21 @@
 
 ## Features
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports Google (default), OpenAI, Anthropic, Cohere, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Vercel Postgres powered by Neon](https://vercel.com/storage/postgres) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient object storage
-- [NextAuth.js](https://github.com/nextauthjs/next-auth)
-  - Simple and secure authentication
+- **Simple Text Input Interface**
+  - No complex chat interface - just paste your text and get insights
+  - Clean, focused user experience
+- **AI-Powered Market Analysis**
+  - Automatic analysis using Google Gemini 1.5 Flash (latest free tier)
+  - Extract key insights, opportunities, threats, and recommendations
+  - Company overview and structured data extraction
+- **Vector Search with Firestore**
+  - Intelligent document storage and retrieval
+  - Context-aware analysis using embeddings
+- **Modern Tech Stack**
+  - [Next.js](https://nextjs.org) App Router with React Server Components
+  - [Firebase Firestore](https://firebase.google.com/docs/firestore) for document storage
+  - [shadcn/ui](https://ui.shadcn.com) with [Tailwind CSS](https://tailwindcss.com)
+  - [AI SDK](https://sdk.vercel.ai/docs) by Vercel
 
 ## Model Providers
 
@@ -59,3 +56,23 @@ pnpm dev
 ```
 
 Your app template should now be running on [localhost:3000](http://localhost:3000/).
+
+## How to Use
+
+1. Start the development server (see Running Locally above)
+2. Open [localhost:3000](http://localhost:3000/) in your browser
+3. Choose your input method:
+   - **Paste Text**: Copy and paste your market research content
+   - **Upload PDF**: Upload a PDF document for analysis
+4. Click "Get Market Insights"
+5. View comprehensive AI-generated analysis including:
+   - Company overview and key metrics
+   - Market insights and trends
+   - Growth opportunities
+   - Potential threats
+   - Strategic recommendations
+
+### Supported Formats
+- Plain text (paste directly)
+- PDF files (uploaded via file picker)
+- TXT files (uploaded via file picker)
