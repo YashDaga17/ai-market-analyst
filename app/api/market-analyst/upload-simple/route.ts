@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { storeDocumentChunksSimple } from "@/lib/document-processor-simple";
 
 export const dynamic = 'force-dynamic';

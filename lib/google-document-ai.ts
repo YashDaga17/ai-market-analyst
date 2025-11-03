@@ -86,7 +86,6 @@ export async function processWithDocumentAI(
 export async function extractTextFromPDF(fileBuffer: Buffer): Promise<string> {
   try {
     // Use require for pdf-parse in Node.js runtime
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pdfParse = require("pdf-parse");
 
     // Parse the PDF buffer

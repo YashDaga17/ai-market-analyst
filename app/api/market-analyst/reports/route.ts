@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getMarketReports, getMarketReportById } from "@/lib/genkit-flows";
 
 // GET all reports or a specific report by ID
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
   } catch (error: any) {
     console.error("Error fetching reports:", error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: error.message || 'Failed to fetch reports',
       details: error.toString()
     }, { status: 500 });

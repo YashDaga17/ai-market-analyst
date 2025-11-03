@@ -3,7 +3,8 @@
  * Use this for testing to isolate the "Invalid array length" issue
  */
 
-import { collection, addDoc, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
+import { addDoc, collection, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore";
+
 import { db } from "./firebase";
 
 // Chunk text into smaller pieces

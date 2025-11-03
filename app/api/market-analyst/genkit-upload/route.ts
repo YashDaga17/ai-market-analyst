@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { extractAndStorePdfData } from "@/lib/genkit-flows";
 
 export async function POST(request: NextRequest) {

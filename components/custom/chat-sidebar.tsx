@@ -51,7 +51,7 @@ export function ChatSidebar({
       />
 
       {/* Sidebar */}
-      <div className="fixed right-0 top-0 h-full w-full lg:w-[500px] bg-white shadow-2xl z-50 flex flex-col">
+      <div className="fixed right-0 top-0 size-full lg:w-[500px] bg-white shadow-2xl z-50 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600">
           <div className="flex items-center gap-3 text-white">
@@ -74,7 +74,7 @@ export function ChatSidebar({
         {/* Document Info */}
         <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
           <div className="flex items-start gap-2">
-            <div className="flex-shrink-0 mt-0.5">
+            <div className="shrink-0 mt-0.5">
               <div className="size-2 bg-green-500 rounded-full animate-pulse" />
             </div>
             <div className="flex-1 min-w-0">

@@ -18,6 +18,9 @@ import { PDFUpload } from "@/components/custom/pdf-upload";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+// Force dynamic rendering to avoid prerendering issues with PDF library
+export const dynamic = 'force-dynamic';
+
 interface MarketInsights {
   keyInsights?: string[];
   opportunities?: string[];
@@ -307,7 +310,7 @@ export default function MarketAnalystPage() {
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                <div className="animate-spin rounded-full size-5 border-b-2 border-white mr-2" />
                 Analyzing Document...
               </>
             ) : (
@@ -381,7 +384,7 @@ export default function MarketAnalystPage() {
                 <ul className="space-y-3">
                   {insights.keyInsights.map((insight, idx) => (
                     <li key={idx} className="flex gap-4 p-5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-100 hover:shadow-md transition-shadow">
-                      <span className="flex-shrink-0 flex items-center justify-center size-6 bg-blue-600 text-white rounded-full text-sm font-bold">
+                      <span className="shrink-0 flex items-center justify-center size-6 bg-blue-600 text-white rounded-full text-sm font-bold">
                         {idx + 1}
                       </span>
                       <span className="text-gray-700 leading-relaxed">{insight}</span>
@@ -406,7 +409,7 @@ export default function MarketAnalystPage() {
                 <ul className="space-y-3">
                   {insights.opportunities.map((opportunity, idx) => (
                     <li key={idx} className="flex gap-4 p-5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100 hover:shadow-md transition-shadow">
-                      <span className="flex-shrink-0 flex items-center justify-center size-6 bg-green-600 text-white rounded-full text-sm">
+                      <span className="shrink-0 flex items-center justify-center size-6 bg-green-600 text-white rounded-full text-sm">
                         ✓
                       </span>
                       <span className="text-gray-700 leading-relaxed">{opportunity}</span>
@@ -431,7 +434,7 @@ export default function MarketAnalystPage() {
                 <ul className="space-y-3">
                   {insights.threats.map((threat, idx) => (
                     <li key={idx} className="flex gap-4 p-5 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-100 hover:shadow-md transition-shadow">
-                      <span className="flex-shrink-0 flex items-center justify-center size-6 bg-red-600 text-white rounded-full text-sm">
+                      <span className="shrink-0 flex items-center justify-center size-6 bg-red-600 text-white rounded-full text-sm">
                         ⚠
                       </span>
                       <span className="text-gray-700 leading-relaxed">{threat}</span>
@@ -456,7 +459,7 @@ export default function MarketAnalystPage() {
                 <ul className="space-y-3">
                   {insights.recommendations.map((recommendation, idx) => (
                     <li key={idx} className="flex gap-4 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 hover:shadow-md transition-shadow">
-                      <span className="flex-shrink-0 flex items-center justify-center size-6 bg-purple-600 text-white rounded-full text-sm font-bold">
+                      <span className="shrink-0 flex items-center justify-center size-6 bg-purple-600 text-white rounded-full text-sm font-bold">
                         →
                       </span>
                       <span className="text-gray-700 leading-relaxed">{recommendation}</span>

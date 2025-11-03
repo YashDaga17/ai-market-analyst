@@ -1,8 +1,15 @@
-import * as pdfjsLib from 'pdfjs-dist';
+// Dynamically import pdfjs-dist to avoid SSR issues
+let pdfjsLib: typeof import('pdfjs-dist') | null = null;
 
-// Configure worker - use local worker file from public folder
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+async function getPdfJs() {
+  if (!pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    // Configure worker - use local worker file from public folder
+    if (typeof window !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+    }
+  }
+  return pdfjsLib;
 }
 
 export interface PDFExtractionProgress {
@@ -28,10 +35,12 @@ export async function extractTextFromPDF(
   onProgress?: (progress: PDFExtractionProgress) => void
 ): Promise<PDFExtractionResult> {
   try {
+    const pdfjs = await getPdfJs();
+    
     // Load the PDF document
     const loadingTask = typeof file === 'string' 
-      ? pdfjsLib.getDocument(file)
-      : pdfjsLib.getDocument(await file.arrayBuffer());
+      ? pdfjs.getDocument(file)
+      : pdfjs.getDocument(await file.arrayBuffer());
     
     const pdf = await loadingTask.promise;
     const totalPages = pdf.numPages;
@@ -92,7 +101,8 @@ export async function extractTextFromLargePDF(
   onProgress?: (progress: PDFExtractionProgress) => void
 ): Promise<PDFExtractionResult> {
   try {
-    const loadingTask = pdfjsLib.getDocument(await file.arrayBuffer());
+    const pdfjs = await getPdfJs();
+    const loadingTask = pdfjs.getDocument(await file.arrayBuffer());
     const pdf = await loadingTask.promise;
     const totalPages = pdf.numPages;
     

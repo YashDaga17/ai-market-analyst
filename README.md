@@ -18,7 +18,7 @@ A production-ready web application that processes PDF documents, stores them in 
 - Next.js 15 (App Router with React Server Components)
 - Google Gemini 2.5 Flash Lite (AI model)
 - Firebase Firestore (document storage)
-- PDF.js (client-side PDF extraction)
+- PDF.js (dynamic client-side PDF extraction)
 - TypeScript + Tailwind CSS
 
 ## Setup & Installation
@@ -70,6 +70,15 @@ pnpm dev
 ```
 
 6. Open [http://localhost:3000](http://localhost:3000)
+
+### Building for Production
+
+```bash
+pnpm build
+pnpm start
+```
+
+The application uses dynamic imports for PDF.js to ensure compatibility with Next.js static generation and server-side rendering.
 
 ## Design Decisions
 
@@ -247,7 +256,7 @@ User Query → Keyword Search → Relevant Chunks → Gemini AI → Response
 
 ## Features
 
-- PDF document upload with client-side text extraction
+- PDF document upload with dynamic client-side text extraction (SSR-safe)
 - Text input for direct content analysis
 - Intelligent document chunking with overlap
 - Keyword-based document search
@@ -255,6 +264,7 @@ User Query → Keyword Search → Relevant Chunks → Gemini AI → Response
 - Interactive chat interface with document context
 - Real-time analysis results
 - Responsive design with modern UI
+- Static page generation support
 
 ## Project Structure
 
@@ -262,7 +272,7 @@ User Query → Keyword Search → Relevant Chunks → Gemini AI → Response
 lib/
 ├── document-processor-simple.ts  # Chunking, storage, search
 ├── market-analyst-agent.ts       # AI analysis functions
-├── pdf-extractor.ts              # PDF text extraction
+├── pdf-extractor.ts              # Dynamic PDF text extraction (SSR-safe)
 └── firebase.ts                   # Firebase client config
 
 app/

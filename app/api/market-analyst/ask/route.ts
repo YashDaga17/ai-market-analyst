@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { askQuestion } from "@/lib/market-analyst-agent";
 import { storeChatMessage } from "@/lib/document-processor-simple";
+import { askQuestion } from "@/lib/market-analyst-agent";
 
 // Force Node.js runtime
 export const runtime = 'nodejs';

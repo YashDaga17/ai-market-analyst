@@ -1,18 +1,16 @@
-import { generate } from '@genkit-ai/ai';
-import { configureGenkit } from '@genkit-ai/core';
-import { googleAI } from '@genkit-ai/googleai';
+import { gemini15Flash, googleAI } from '@genkit-ai/googleai';
+import { genkit } from 'genkit';
 import { z } from 'zod';
+
 import { adminDb } from './firebase-admin-init';
 
 // Configure Genkit with Google AI
-configureGenkit({
+const ai = genkit({
   plugins: [
     googleAI({
       apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     }),
   ],
-  logLevel: 'debug',
-  enableTracingAndMetrics: true,
 });
 
 // Define the schema for extracted data
@@ -52,15 +50,15 @@ Extract:
 
 Format your response as a JSON object.`;
 
-    const llmResponse = await generate({
-      model: 'googleai/gemini-1.5-flash',
+    const llmResponse = await ai.generate({
+      model: gemini15Flash,
       prompt,
       output: {
         schema: ExtractedDataSchema,
       },
     });
 
-    const extractedData = llmResponse.output() as ExtractedData;
+    const extractedData = llmResponse.output as ExtractedData;
 
     if (!extractedData) {
       throw new Error('Failed to extract data from PDF.');
@@ -102,7 +100,7 @@ export async function getMarketReports(limit: number = 10) {
     .limit(limit)
     .get();
 
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc: { id: any; data: () => any; }) => ({
     id: doc.id,
     ...doc.data(),
   }));
@@ -113,7 +111,7 @@ export async function getMarketReports(limit: number = 10) {
  */
 export async function getMarketReportById(docId: string) {
   const doc = await adminDb.collection('marketReports').doc(docId).get();
-  
+
   if (!doc.exists) {
     throw new Error('Document not found');
   }
