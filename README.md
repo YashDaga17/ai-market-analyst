@@ -1,78 +1,274 @@
-<h1 align="center">AI Market Analyst</h1>
+# AI Market Analyst
 
-<p align="center">
-  Get instant AI-powered market insights from your research documents.
-</p>
+An intelligent document analysis system that extracts structured insights from market research documents using RAG (Retrieval-Augmented Generation) and Google Gemini AI.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
-</p>
-<br/>
+## Objective
 
-## Features
+This application solves the problem of manually analyzing lengthy market research documents by automatically extracting key insights, identifying opportunities and threats, and providing strategic recommendations. It enables users to quickly understand market dynamics and make data-driven decisions.
 
-- **Simple Text Input Interface**
-  - No complex chat interface - just paste your text and get insights
-  - Clean, focused user experience
-- **AI-Powered Market Analysis**
-  - Automatic analysis using Google Gemini 1.5 Flash (latest free tier)
-  - Extract key insights, opportunities, threats, and recommendations
-  - Company overview and structured data extraction
-- **Vector Search with Firestore**
-  - Intelligent document storage and retrieval
-  - Context-aware analysis using embeddings
-- **Modern Tech Stack**
-  - [Next.js](https://nextjs.org) App Router with React Server Components
-  - [Firebase Firestore](https://firebase.google.com/docs/firestore) for document storage
-  - [shadcn/ui](https://ui.shadcn.com) with [Tailwind CSS](https://tailwindcss.com)
-  - [AI SDK](https://sdk.vercel.ai/docs) by Vercel
+## Result
 
-## Model Providers
+A production-ready web application that processes PDF documents, stores them in a vector-searchable format, and provides three core capabilities:
+1. Interactive Q&A with document context
+2. Automated market research findings extraction
+3. Structured data extraction (company info, metrics, competitors)
 
-This template ships with Google Gemini `gemini-1.5-pro` models as the default. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+## Tech Stack
 
-## Deploy Your Own
+- Next.js 15 (App Router with React Server Components)
+- Google Gemini 2.5 Flash Lite (AI model)
+- Firebase Firestore (document storage)
+- PDF.js (client-side PDF extraction)
+- TypeScript + Tailwind CSS
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+## Setup & Installation
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fgemini-chatbot&env=AUTH_SECRET,GOOGLE_GENERATIVE_AI_API_KEY&envDescription=Learn%20more%20about%20how%20to%20get%20the%20API%20Keys%20for%20the%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fgemini-chatbot%2Fblob%2Fmain%2F.env.example&demo-title=Next.js%20Gemini%20Chatbot&demo-description=An%20Open-Source%20AI%20Chatbot%20Template%20Built%20With%20Next.js%20and%20the%20AI%20SDK%20by%20Vercel.&demo-url=https%3A%2F%2Fgemini.vercel.ai&stores=[{%22type%22:%22postgres%22},{%22type%22:%22blob%22}])
+### Prerequisites
 
-## Running locally
+- Node.js 18+ and pnpm
+- Google Cloud account with Gemini API access
+- Firebase project with Firestore enabled
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+### Environment Setup
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various Google Cloud and authentication provider accounts.
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd ai-market-analyst
+```
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
+2. Install dependencies:
 ```bash
 pnpm install
+```
+
+3. Create `.env.local` file in the root directory:
+```env
+# Google Gemini API Key
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+
+# Firebase Client Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# Google Cloud Project
+GOOGLE_CLOUD_PROJECT_ID=your_project_id
+GOOGLE_CLOUD_LOCATION=us
+```
+
+4. Set up Firebase:
+   - Create a Firestore database in your Firebase project
+   - No indexes required (simple keyword search implementation)
+
+5. Run the development server:
+```bash
 pnpm dev
 ```
 
-Your app template should now be running on [localhost:3000](http://localhost:3000/).
+6. Open [http://localhost:3000](http://localhost:3000)
 
-## How to Use
+## Design Decisions
 
-1. Start the development server (see Running Locally above)
-2. Open [localhost:3000](http://localhost:3000/) in your browser
-3. Choose your input method:
-   - **Paste Text**: Copy and paste your market research content
-   - **Upload PDF**: Upload a PDF document for analysis
-4. Click "Get Market Insights"
-5. View comprehensive AI-generated analysis including:
-   - Company overview and key metrics
-   - Market insights and trends
-   - Growth opportunities
-   - Potential threats
-   - Strategic recommendations
+### Chunking Strategy
 
-### Supported Formats
-- Plain text (paste directly)
-- PDF files (uploaded via file picker)
-- TXT files (uploaded via file picker)
+**Choice**: 1000 characters per chunk with 200 character overlap
+
+**Rationale**:
+- 1000 characters (~150-200 words) provides sufficient context for semantic understanding
+- 200 character overlap ensures continuity across chunk boundaries, preventing loss of context at split points
+- Balances between granularity (for precise retrieval) and context preservation
+- Optimized for Gemini's token limits while maintaining coherent text segments
+
+**Implementation**: See `lib/document-processor-simple.ts` - `chunkText()` function
+
+### Embedding Model
+
+**Choice**: Keyword-based search (no embeddings)
+
+**Rationale**:
+- Simplified architecture reduces complexity and API costs
+- Keyword matching is sufficient for structured market research documents with clear terminology
+- Eliminates dependency on embedding APIs (Vertex AI, OpenAI)
+- Faster processing and lower latency
+- Trade-off: Less semantic understanding, but adequate for domain-specific queries
+
+**Implementation**: See `lib/document-processor-simple.ts` - `searchDocumentsSimple()` function
+
+### Vector Database
+
+**Choice**: Firebase Firestore (without vector search)
+
+**Rationale**:
+- Client-side Firebase SDK eliminates need for server-side authentication
+- Real-time updates and easy integration with Next.js
+- Simple keyword-based search meets requirements without vector capabilities
+- Scalable and managed infrastructure
+- No additional vector database setup required
+- Trade-off: No semantic similarity search, but keyword matching works well for structured documents
+
+**Collections**:
+- `market_docs_simple`: Document chunks with metadata
+- `chat_messages`: Conversation history
+
+### Data Extraction Prompt Design
+
+**Strategy**: Structured JSON output with explicit schema definition
+
+**Key Elements**:
+1. Clear role definition: "You are an AI Market Analyst"
+2. Explicit output format specification with JSON schema
+3. Context-first approach: Provide document content before questions
+4. Specific field requirements with examples
+5. Fallback parsing with regex to extract JSON from markdown code blocks
+
+**Example** (from `lib/market-analyst-agent.ts`):
+```typescript
+const prompt = `You are an AI Market Analyst with access to the user's uploaded market research document. 
+Answer the following question using ONLY the information from the provided document context.
+
+DOCUMENT CONTEXT (from uploaded PDF):
+${context}
+
+USER QUESTION: ${question}
+
+INSTRUCTIONS:
+- Answer based ONLY on the information in the document context above
+- Be specific and cite relevant details from the document
+- Reference specific sections like [Source 1], [Source 2]
+- Provide actionable insights when possible`;
+```
+
+**Reliability Measures**:
+- JSON extraction with regex fallback
+- Error handling for malformed responses
+- Default values for missing fields
+- Validation of required fields
+
+## API Usage
+
+### Task 1: Q&A with Document Context
+
+**Endpoint**: `POST /api/market-analyst/ask`
+
+**Request**:
+```json
+{
+  "question": "What are the main competitors?",
+  "documentName": "market-report.pdf"
+}
+```
+
+**Response**:
+```json
+{
+  "answer": "The main competitors are Synergy Systems, FutureFlow, and QuantumLeap...",
+  "sources": ["[Source 1] Innovate Inc. holds a significant market share...", "..."],
+  "confidence": 0.8
+}
+```
+
+**Implementation**: `lib/market-analyst-agent.ts` - `askQuestion()`
+
+### Task 2: Market Research Findings
+
+**Endpoint**: `POST /api/market-analyst/analyze`
+
+**Request**:
+```json
+{
+  "text": "Full document text content..."
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "analysis": {
+    "companyName": "Innovate Inc.",
+    "industry": "AI workflow automation",
+    "marketSize": "$15 billion",
+    "competitors": ["Synergy Systems", "FutureFlow"],
+    "keyInsights": ["Market growing at 22% CAGR", "..."],
+    "opportunities": ["Healthcare sector expansion", "..."],
+    "threats": ["Aggressive pricing from competitors", "..."],
+    "recommendations": ["Accelerate feature development", "..."],
+    "swotAnalysis": {
+      "strengths": ["Strong customer loyalty", "..."],
+      "weaknesses": ["Slower feature rollout", "..."],
+      "opportunities": ["Healthcare expansion", "..."],
+      "threats": ["Rapid innovation from QuantumLeap", "..."]
+    }
+  }
+}
+```
+
+**Implementation**: `app/api/market-analyst/analyze/route.ts`
+
+### Task 3: Structured Data Extraction
+
+**Endpoint**: `POST /api/market-analyst/upload-simple`
+
+**Request**:
+```json
+{
+  "documentName": "market-report.pdf",
+  "content": "Document text content...",
+  "metadata": {
+    "uploadedAt": "2025-11-03T15:32:40.468Z",
+    "source": "pdf_upload"
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Document processed into 2 chunks (simple mode - no embeddings)",
+  "chunks": 2,
+  "mode": "simple"
+}
+```
+
+**Implementation**: `app/api/market-analyst/upload-simple/route.ts`
+
+## Architecture
+
+```
+User Upload → PDF Extraction (client) → Text Chunking → Firestore Storage
+                                                              ↓
+User Query → Keyword Search → Relevant Chunks → Gemini AI → Response
+```
+
+## Features
+
+- PDF document upload with client-side text extraction
+- Text input for direct content analysis
+- Intelligent document chunking with overlap
+- Keyword-based document search
+- AI-powered market analysis with structured output
+- Interactive chat interface with document context
+- Real-time analysis results
+- Responsive design with modern UI
+
+## Project Structure
+
+```
+lib/
+├── document-processor-simple.ts  # Chunking, storage, search
+├── market-analyst-agent.ts       # AI analysis functions
+├── pdf-extractor.ts              # PDF text extraction
+└── firebase.ts                   # Firebase client config
+
+app/
+├── market-analyst/page.tsx       # Main UI
+└── api/market-analyst/
+    ├── analyze/route.ts          # Market analysis endpoint
+    ├── ask/route.ts              # Q&A endpoint
+    └── upload-simple/route.ts    # Document upload endpoint
+```
