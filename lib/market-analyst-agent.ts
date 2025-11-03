@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-import { searchDocuments } from "./document-processor";
+import { searchDocumentsSimple } from "./document-processor-simple";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
 
@@ -31,43 +31,54 @@ export async function askQuestion(
   question: string,
   documentName?: string
 ): Promise<MarketAnalystResponse> {
-  // Retrieve relevant context using vector search
-  const relevantChunks = await searchDocuments(question, 5, documentName);
+  console.log(`[ASK] Question: "${question}" for document: ${documentName || 'all'}`);
+  
+  // Retrieve relevant context using keyword search from uploaded PDF chunks
+  const relevantChunks = await searchDocumentsSimple(question, 5, documentName);
+
+  console.log(`[ASK] Found ${relevantChunks.length} relevant chunks`);
 
   if (relevantChunks.length === 0) {
     return {
-      answer: "I don't have enough information to answer this question based on the provided documents.",
+      answer: "I don't have enough information to answer this question based on the uploaded document. Please make sure you've uploaded a document first, or try rephrasing your question.",
       sources: [],
       confidence: 0,
     };
   }
 
-  // Build context from relevant chunks
-  const context = relevantChunks.map((chunk, i) => `[${i + 1}] ${chunk.content}`).join("\n\n");
+  // Build context from relevant chunks (these are from your uploaded PDF)
+  const context = relevantChunks.map((chunk, i) => `[Source ${i + 1}]\n${chunk.content}`).join("\n\n---\n\n");
 
-  // Generate answer using Gemini
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+  console.log(`[ASK] Context length: ${context.length} characters`);
 
-  const prompt = `You are an AI Market Analyst. Answer the following question based on the provided context from market research documents.
+  // Generate answer using Gemini with the PDF context
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
-Context:
+  const prompt = `You are an AI Market Analyst with access to the user's uploaded market research document. Answer the following question using ONLY the information from the provided document context.
+
+DOCUMENT CONTEXT (from uploaded PDF):
 ${context}
 
-Question: ${question}
+USER QUESTION: ${question}
 
-Provide a clear, concise answer based on the context. If the context doesn't contain enough information, say so. Cite which context sections you used (e.g., [1], [2]).`;
+INSTRUCTIONS:
+- Answer based ONLY on the information in the document context above
+- Be specific and cite relevant details from the document
+- If the document doesn't contain information to answer the question, clearly state that
+- Reference specific sections like [Source 1], [Source 2] when applicable
+- Provide actionable insights when possible
+
+Your answer:`;
 
   const result = await model.generateContent(prompt);
   const answer = result.response.text();
 
-  // Calculate average confidence from similarity scores
-  const avgConfidence =
-    relevantChunks.reduce((sum, chunk) => sum + chunk.similarity, 0) / relevantChunks.length;
+  console.log(`[ASK] Generated answer length: ${answer.length} characters`);
 
   return {
     answer,
-    sources: relevantChunks.map((chunk) => chunk.content.substring(0, 100) + "..."),
-    confidence: avgConfidence,
+    sources: relevantChunks.map((chunk) => chunk.content.substring(0, 150) + "..."),
+    confidence: 0.8, // Default confidence for keyword search
   };
 }
 
@@ -76,7 +87,7 @@ export async function generateMarketResearchFindings(
   documentName: string
 ): Promise<MarketResearchFindings> {
   // Get a broad sample of the document
-  const relevantChunks = await searchDocuments(
+  const relevantChunks = await searchDocumentsSimple(
     "market research findings opportunities threats analysis",
     10,
     documentName
@@ -84,7 +95,7 @@ export async function generateMarketResearchFindings(
 
   const context = relevantChunks.map((chunk) => chunk.content).join("\n\n");
 
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
   const prompt = `You are an AI Market Analyst. Analyze the following market research document and provide structured findings.
 
@@ -128,7 +139,7 @@ Format your response as a JSON object with keys: keyInsights, opportunities, thr
 // Task 3: Structured Data Extraction
 export async function extractStructuredData(documentName: string): Promise<StructuredData> {
   // Get document content
-  const relevantChunks = await searchDocuments(
+  const relevantChunks = await searchDocumentsSimple(
     "company information metrics data statistics",
     10,
     documentName
@@ -136,7 +147,7 @@ export async function extractStructuredData(documentName: string): Promise<Struc
 
   const context = relevantChunks.map((chunk) => chunk.content).join("\n\n");
 
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
   const prompt = `You are an AI Market Analyst. Extract structured data from the following market research document.
 

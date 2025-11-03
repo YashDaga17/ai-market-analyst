@@ -85,8 +85,11 @@ export async function processWithDocumentAI(
 // Simple PDF text extraction using pdf-parse
 export async function extractTextFromPDF(fileBuffer: Buffer): Promise<string> {
   try {
-    // Use require for CommonJS module in Node.js environment
+    // Use require for pdf-parse in Node.js runtime
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pdfParse = require("pdf-parse");
+
+    // Parse the PDF buffer
     const data = await pdfParse(fileBuffer);
 
     if (!data || !data.text) {
@@ -96,6 +99,16 @@ export async function extractTextFromPDF(fileBuffer: Buffer): Promise<string> {
     return data.text;
   } catch (error: any) {
     console.error("PDF extraction error:", error);
+
+    // Provide more helpful error messages
+    if (error.message.includes("pdf-parse")) {
+      throw new Error("PDF parsing library not available. Please ensure pdf-parse is installed.");
+    }
+
+    if (error.message.includes("Invalid PDF")) {
+      throw new Error("Invalid PDF file. Please ensure the file is a valid PDF document.");
+    }
+
     throw new Error(`Failed to extract text from PDF: ${error.message}`);
   }
 }

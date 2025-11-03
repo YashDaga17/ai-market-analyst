@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-
-import { storeDocumentChunksSimple } from "@/lib/document-processor-simple";
+import { extractAndStorePdfData } from "@/lib/genkit-flows";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Upload API called');
+    console.log('Genkit Upload API called');
     const body = await request.json();
-    const { documentName, content, metadata } = body;
+    const { documentName, content } = body;
 
     console.log('Request body:', {
       documentName,
       contentLength: content?.length,
-      metadata
     });
 
     if (!documentName || !content) {
@@ -28,19 +26,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`Processing document: ${documentName} (${content.length} characters)`);
+    console.log(`Processing document with Genkit: ${documentName} (${content.length} characters)`);
 
-    const result = await storeDocumentChunksSimple(documentName, content, metadata);
+    // Use Genkit to extract and store data
+    const result = await extractAndStorePdfData(content, documentName);
 
-    console.log(`Upload successful: ${result.length} chunks stored`);
+    console.log(`Upload successful: Document ID ${result.firestoreDocId}`);
 
     return NextResponse.json({
       success: true,
-      message: `Document processed into ${result.length} chunks`,
-      chunks: result.length,
+      message: 'Document processed and stored successfully',
+      firestoreDocId: result.firestoreDocId,
+      summary: result.extractedSummary,
+      extractedData: result.extractedData,
     });
   } catch (error: any) {
-    console.error("Upload error:", error);
+    console.error("Genkit upload error:", error);
     console.error("Error stack:", error.stack);
     return NextResponse.json({ 
       error: error.message || 'Upload failed',

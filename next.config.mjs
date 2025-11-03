@@ -4,6 +4,12 @@ const nextConfig = {
   images: {
     remotePatterns: [],
   },
+  // Suppress static route warnings
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
 };
 
 export default nextConfig;

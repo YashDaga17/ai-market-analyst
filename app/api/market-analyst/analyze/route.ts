@@ -1,58 +1,49 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
-import { extractTextFromPDF } from "@/lib/google-document-ai";
+export const dynamic = 'force-dynamic';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    const text = formData.get("text") as string | null;
+    const body = await request.json();
+    const { text } = body;
 
-    if (!file && !text) {
+    if (!text) {
       return NextResponse.json(
-        { error: "Either file or text is required" },
+        { error: "Text is required" },
         { status: 400 }
       );
     }
 
-    let content: string = "";
+    const content = text.trim();
 
-    // Handle file upload
-    if (file) {
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      if (file.type === "application/pdf") {
-        // Extract text from PDF
-        content = await extractTextFromPDF(buffer);
-      } else if (file.type === "text/plain") {
-        content = buffer.toString("utf-8");
-      } else {
-        return NextResponse.json(
-          { error: "Unsupported file type. Please upload PDF or TXT files." },
-          { status: 400 }
-        );
-      }
-    } else {
-      content = text!;
-    }
-
-    if (!content || content.trim().length === 0) {
+    if (content.length === 0) {
       return NextResponse.json(
         { error: "No content found in the document" },
         { status: 400 }
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    console.log(`Analyzing document with ${content.length} characters`);
+
+    // Gemini has a context limit - truncate if needed (roughly 30k tokens = ~120k chars)
+    const maxLength = 100000;
+    const truncatedContent = content.length > maxLength 
+      ? content.substring(0, maxLength) + '\n\n[Document truncated for analysis]'
+      : content;
+
+    if (content.length > maxLength) {
+      console.log(`Document truncated from ${content.length} to ${maxLength} characters`);
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     const prompt = `You are an AI Market Analyst. Analyze the following market research document and provide comprehensive insights.
 
 Document Content:
-${content}
+${truncatedContent}
 
 Provide your analysis in the following JSON format:
 {
@@ -63,7 +54,13 @@ Provide your analysis in the following JSON format:
   "keyInsights": ["3-5 key insights from the research"],
   "opportunities": ["3-5 market opportunities identified"],
   "threats": ["3-5 potential threats or challenges"],
-  "recommendations": ["3-5 strategic recommendations"]
+  "recommendations": ["3-5 strategic recommendations"],
+  "swotAnalysis": {
+    "strengths": ["3-5 company strengths"],
+    "weaknesses": ["3-5 company weaknesses"],
+    "opportunities": ["3-5 market opportunities"],
+    "threats": ["3-5 external threats"]
+  }
 }
 
 Return ONLY valid JSON, no additional text.`;
